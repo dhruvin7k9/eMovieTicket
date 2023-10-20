@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "List of Movies";
+}
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 col-xs-6 border-primary mb-3">
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+
+                    <div class="col-md-12" style="max-height: 3800px;">
+                        <img src="@item.ImageURL" width="100%" height="380px" alt="@item.Name">
+                    </div>
+                   
+                    <div class="col-md-12">
+                        <div class="card-body">
+                            <p class="card-text"> <h5 class="card-title"> @item.Name (Price @item.Price.ToString("c"))</h5></p>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text">
+                                <b>Dates : </b>@item.StartDate.ToString("dd MMM yy") - @item.EndDate.ToString("dd MMM yy")
+                                @if (DateTime.Now >= item.StartDate && DateTime.Now <= item.EndDate)
+                                {
+                                    <span class="badge bg-success text-white">AVAILABLE</span>
+                                }
+                                else if (DateTime.Now > item.EndDate)
+                                {
+                                    <span class="badge bg-danger text-white">EXPIRED</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary text-white">UPCOMING</span>
+                                }
+                            </p>
+                            <p class="card-text"><b>Venue: </b>@item.Cinema.Name | <b>Category: </b>@item.MovieCategory</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card-footer ">
+                            <p class="card-text">
+                                
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                {
+                                    <a class="text-dark float-left" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i> Edit</a>
+                                }                                
+                                else {
+                                <a class="btn btn-success float-left text-white @((DateTime.Now > item.EndDate) ? "disabled" : "")"
+                                    asp-controller="Orders" 
+                                    asp-action="AddItemToShoppingCart" 
+                                    asp-route-id="@item.Id">
+                                         Add to Cart 
+                                    </a>
+                                }
+                                
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@await Html.PartialAsync("_CreateItem", "Movies") 
